@@ -2,10 +2,13 @@ package liqp.nodes;
 
 import liqp.TemplateContext;
 import liqp.exceptions.VariableNotExistException;
+import liqp.parser.Inspectable;
+import liqp.parser.LiquidSupport;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class LookupNode implements LNode {
 
@@ -114,8 +117,10 @@ public class LookupNode implements LNode {
             }
             else if(value instanceof TemplateContext) {
                 return ((TemplateContext)value).get(hash);
-            }
-            else {
+            } else if (value instanceof Inspectable) {
+                LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) value);
+                return evaluated.toLiquid().get(hash);
+            } else {
                 return null;
             }
         }
