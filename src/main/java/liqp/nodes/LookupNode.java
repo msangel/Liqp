@@ -79,8 +79,14 @@ public class LookupNode implements LNode {
                 if(value instanceof Collection) {
                     return ((Collection)value).size();
                 }
-                else if(value instanceof java.util.Map) {
-                    java.util.Map map = (java.util.Map)value;
+                else if(value instanceof java.util.Map || value instanceof Inspectable) {
+                    java.util.Map map;
+                    if (value instanceof Inspectable) {
+                        LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) value);
+                        map = evaluated.toLiquid();
+                    } else {
+                        map = (java.util.Map) value;
+                    }
                     return map.containsKey(hash) ? map.get(hash) : map.size();
                 }
                 else if(value.getClass().isArray()) {
@@ -112,14 +118,18 @@ public class LookupNode implements LNode {
                 }
             }
 
-            if(value instanceof java.util.Map) {
-                return ((java.util.Map)value).get(hash);
+            if(value instanceof java.util.Map || value instanceof Inspectable) {
+                java.util.Map map;
+                if (value instanceof Inspectable) {
+                    LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) value);
+                    map = evaluated.toLiquid();
+                } else {
+                    map = (java.util.Map) value;
+                }
+                return map.get(hash);
             }
             else if(value instanceof TemplateContext) {
                 return ((TemplateContext)value).get(hash);
-            } else if (value instanceof Inspectable) {
-                LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) value);
-                return evaluated.toLiquid().get(hash);
             } else {
                 return null;
             }

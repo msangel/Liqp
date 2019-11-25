@@ -126,6 +126,7 @@ public abstract class LValue {
      * Usually we need array representation of items, so the {@link #asArray(Object)} do the work well.
      * But occasionally we need introspect the object (usually `Map`) as array.
      * So this function do so.
+     *
      * @param value
      * @return
      */
@@ -319,7 +320,6 @@ public abstract class LValue {
     }
 
     public Map<String, Object> asMap(Object value) {
-
         return (Map<String, Object>)value;
     }
 }
