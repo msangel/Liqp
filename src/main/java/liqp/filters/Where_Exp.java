@@ -46,7 +46,7 @@ public class Where_Exp extends Filter {
         }
 
         if (items == null && value instanceof Inspectable) {
-            LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) value);
+            LiquidSupport evaluated = context.renderSettings.evaluate(context, (Inspectable) value);
             value = evaluated.toLiquid();
         }
         if (isMap(value)) {
@@ -73,7 +73,7 @@ public class Where_Exp extends Filter {
     }
 
     private boolean matchCondition(TemplateContext context, Object item, String varName, Template expression) {
-        String res = expression.renderUnguarded(Collections.singletonMap(varName, item), context);
+        String res = expression.renderUnguarded(Collections.singletonMap(varName, item), context, false);
         return "true".equals(res);
     }
 }
