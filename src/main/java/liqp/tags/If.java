@@ -2,6 +2,7 @@ package liqp.tags;
 
 import liqp.TemplateContext;
 import liqp.nodes.LNode;
+import liqp.spi.BasicTypesSupport;
 
 class If extends Tag {
 
@@ -17,7 +18,7 @@ class If extends Tag {
             LNode blockNode = nodes[i + 1];
 
             if (super.asBoolean(exprNodeValue)) {
-                return blockNode.render(context);
+                return BasicTypesSupport.restoreObject(context, blockNode.render(context));
             }
         }
 

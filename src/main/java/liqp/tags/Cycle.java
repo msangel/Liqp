@@ -2,6 +2,7 @@ package liqp.tags;
 
 import liqp.TemplateContext;
 import liqp.nodes.LNode;
+import liqp.spi.BasicTypesSupport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ class Cycle extends Tag {
         List<Object> elements = new ArrayList<>();
 
         for (int i = 1; i < nodes.length; i++) {
-            elements.add(nodes[i].render(context));
+            elements.add(BasicTypesSupport.restoreObject(context, nodes[i].render(context)));
         }
 
 
@@ -29,7 +30,7 @@ class Cycle extends Tag {
         // null (indicating there is no name), give it the name as stringified parameters
         String groupName = nodes[0] == null ?
                 super.asString(elements) :
-                super.asString(nodes[0].render(context));
+                super.asString(BasicTypesSupport.restoreObject(context, nodes[0].render(context)));
 
         Map<String, Object> cycleRegistry = context.getRegistry(TemplateContext.REGISTRY_CYCLE);
 

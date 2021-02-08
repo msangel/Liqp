@@ -3,6 +3,7 @@ package liqp.tags;
 import liqp.TemplateContext;
 import liqp.nodes.FilterNode;
 import liqp.nodes.LNode;
+import liqp.spi.BasicTypesSupport;
 
 class Assign extends Tag {
 
@@ -14,7 +15,7 @@ class Assign extends Tag {
 
         String id = String.valueOf(nodes[0].render(context));
         LNode expression = nodes[1];
-        Object value = expression.render(context);
+        Object value = BasicTypesSupport.restoreObject(context, expression.render(context));
 
         for (int i = 2; i < nodes.length; i++) {
             FilterNode filter = (FilterNode)nodes[i];

@@ -1,6 +1,7 @@
 package liqp.nodes;
 
 import liqp.TemplateContext;
+import liqp.spi.BasicTypesSupport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class KeyValueNode implements LNode {
     @Override
     public Object render(TemplateContext context) {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(key, value.render(context));
+        map.put(key, BasicTypesSupport.restoreObject(context, value.render(context)));
         return map;
     }
 }

@@ -1,6 +1,7 @@
 package liqp.nodes;
 
 import liqp.TemplateContext;
+import liqp.spi.BasicTypesSupport;
 
 public class AttributeNode implements LNode {
 
@@ -17,7 +18,7 @@ public class AttributeNode implements LNode {
 
         return new Object[]{
                 key.render(context),
-                value.render(context)
+                BasicTypesSupport.restoreObject(context, value.render(context))
         };
     }
 }

@@ -16,6 +16,7 @@ import liqp.nodes.BlockNode;
 import liqp.nodes.LNode;
 import liqp.parser.Inspectable;
 import liqp.parser.LiquidSupport;
+import liqp.spi.BasicTypesSupport;
 
 /**
  * Documentation:
@@ -60,8 +61,8 @@ class For extends Tag {
         // range, `for i in (4..item.length)`.
         boolean array = super.asBoolean(nodes[0].render(context));
 
-        String id = super.asString(nodes[1].render(context));
-        String tagName = id + "-" + nodes[5].render(context);
+        String id = super.asString(BasicTypesSupport.restoreObject(context, nodes[1].render(context)));
+        String tagName = id + "-" + BasicTypesSupport.restoreObject(context, nodes[5].render(context));
         boolean reversed = super.asBoolean(nodes[6].render(context));
 
         // Each for tag has its own context that keeps track of its own variables (scope)
@@ -87,6 +88,7 @@ class For extends Tag {
         int from = attributes.get(OFFSET);
         int limit = attributes.get(LIMIT);
 
+        data = BasicTypesSupport.restoreObject(context, data);
         if (data instanceof Inspectable) {
             LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) data);
             data = evaluated.toLiquid();
@@ -123,6 +125,11 @@ class For extends Tag {
             Collections.reverse(listCopy);
             arrayList = listCopy;
         }
+        ArrayList<Object> restored = new ArrayList<>();
+        for (Object object: arrayList) {
+            restored.add(BasicTypesSupport.restoreObject(context, object));
+        }
+        arrayList = restored;
 
         // now the current offset and limit is known, so its safe to set "continue" lexem
         // in case of fail it will fail
@@ -173,7 +180,7 @@ class For extends Tag {
 
         for (LNode node : children) {
 
-            Object value = node.render(context);
+            Object value = BasicTypesSupport.restoreObject(context, node.render(context));
 
             if(value == null) {
                 continue;
@@ -195,10 +202,10 @@ class For extends Tag {
                 Object[] arr = super.asArray(value);
 
                 for (Object obj : arr) {
-                    builder.append(String.valueOf(obj));
+                    builder.append(super.asString(BasicTypesSupport.restoreObject(context, obj)));
                 }
             } else {
-                builder.append(super.asString(value));
+                builder.append(super.asString(BasicTypesSupport.restoreObject(context, value)));
             }
         }
         return isBreak;
@@ -216,8 +223,8 @@ class For extends Tag {
 
         LNode block = tokens[4];
 
-        int from = super.asNumber(tokens[2].render(context)).intValue();
-        int to   = super.asNumber(tokens[3].render(context)).intValue();
+        int from = super.asNumber(BasicTypesSupport.restoreObject(context, tokens[2].render(context))).intValue();
+        int to   = super.asNumber(BasicTypesSupport.restoreObject(context, tokens[3].render(context))).intValue();
         int effectiveTo;
         if (limit < 0) {
             effectiveTo = to;

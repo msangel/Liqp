@@ -2,6 +2,7 @@ package liqp.tags;
 
 import liqp.TemplateContext;
 import liqp.nodes.LNode;
+import liqp.spi.BasicTypesSupport;
 
 class Capture extends Tag {
 
@@ -16,7 +17,9 @@ class Capture extends Tag {
         LNode block = nodes[1];
 
         // Capture causes variable to be saved "globally"
-        context.put(id, block.render(context), true);
+        Object rendered = block.render(context);
+        rendered = BasicTypesSupport.restoreObject(context, rendered);
+        context.put(id, rendered, true);
 
         return null;
     }

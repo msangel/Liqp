@@ -4,6 +4,7 @@ import liqp.LValue;
 import liqp.TemplateContext;
 import liqp.nodes.BlockNode;
 import liqp.nodes.LNode;
+import liqp.spi.BasicTypesSupport;
 
 class Case extends Tag {
 
@@ -17,7 +18,7 @@ class Case extends Tag {
         //            ^(WHEN term+ block)    1,2,3  b1
         //            ^(ELSE block?))               b2
 
-        Object condition = nodes[0].render(context);
+        Object condition = BasicTypesSupport.restoreObject(context, nodes[0].render(context));
 
         for (int i = 1; i < nodes.length; i++) {
 
@@ -25,7 +26,7 @@ class Case extends Tag {
 
             if(i == nodes.length - 1 && node instanceof BlockNode) {
                 // this must be the trailing (optional) else-block
-                return node.render(context);
+                return BasicTypesSupport.restoreObject(context, node.render(context));
             }
             else {
 
@@ -37,7 +38,7 @@ class Case extends Tag {
                 // and stop when we encounter a BlockNode
                 while(!(node instanceof BlockNode)) {
 
-                    Object whenExpressionValue = node.render(context);
+                    Object whenExpressionValue = BasicTypesSupport.restoreObject(context, node.render(context));
 
                     if (LValue.areEqual(condition, whenExpressionValue)) {
                         hit = true;
@@ -48,7 +49,7 @@ class Case extends Tag {
                 }
 
                 if(hit) {
-                    return node.render(context);
+                    return BasicTypesSupport.restoreObject(context, node.render(context));
                 }
             }
         }

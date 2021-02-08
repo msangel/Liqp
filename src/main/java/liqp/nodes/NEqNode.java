@@ -2,6 +2,7 @@ package liqp.nodes;
 
 import liqp.LValue;
 import liqp.TemplateContext;
+import liqp.spi.BasicTypesSupport;
 
 public class NEqNode implements LNode {
 
@@ -16,8 +17,8 @@ public class NEqNode implements LNode {
     @Override
     public Object render(TemplateContext context) {
 
-        Object a = lhs.render(context);
-        Object b = rhs.render(context);
+        Object a = BasicTypesSupport.restoreObject(context, lhs.render(context));
+        Object b = BasicTypesSupport.restoreObject(context, rhs.render(context));
 
         return !LValue.areEqual(a, b);
 

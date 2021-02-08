@@ -4,6 +4,7 @@ import liqp.LValue;
 import liqp.TemplateContext;
 import liqp.parser.Inspectable;
 import liqp.parser.LiquidSupport;
+import liqp.spi.BasicTypesSupport;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ public class ContainsNode extends LValue implements LNode {
     @Override
     public Object render(TemplateContext context) {
 
-        Object collection = lhs.render(context);
-        Object needle = rhs.render(context);
+        Object collection = BasicTypesSupport.restoreObject(context, lhs.render(context));
+        Object needle = BasicTypesSupport.restoreObject(context, rhs.render(context));
 
         if (collection instanceof Inspectable) {
             LiquidSupport evaluated = context.renderSettings.evaluate(context.parseSettings.mapper, (Inspectable) collection);

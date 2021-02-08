@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import liqp.RenderSettings.EvaluateMode;
 import liqp.TemplateContext;
 import liqp.filters.date.CustomDateFormatRegistry;
 import liqp.filters.date.CustomDateFormatSupport;
@@ -11,18 +12,31 @@ import liqp.filters.date.CustomDateFormatSupport;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * This class provide generic abstract implementation of {@link TypesSupport}.
+ * Also it provides helpers for restoring objects from
+ * form of maps and arrays.
+ * Everything is converted to maps and arrays with {@link EvaluateMode#EAGER},
+ * because this is a way of jackson mappers works in this code:
+ * <code>
+ *     mapper.convertValue(value, Map.class)
+ * </code>
+ * so this is tool for restoring objects back.
+ * Built-in usage: restore DateTime objects.
+ */
 public abstract class BasicTypesSupport implements TypesSupport {
 
     @SuppressWarnings("rawtypes")
-    private static final Map<String, TypeConvertor> typeRegistry = new HashMap<>();
+    private static final Map<String, TypeConvertor> typeRegistry = new ConcurrentHashMap<>();
 
     protected<T> void registerType(SimpleModule module, final Class<T> clazz, final TypeConvertor<T> typeGenerator) {
         module.addSerializer(new StdSerializer<T>(clazz) {
             @Override
             public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
                 gen.writeStartObject();
-                gen.writeBooleanField("@supportedTypeMarker", true);
+                gen.writeBooleanField("@supportedTypeMarker", Boolean.TRUE);
                 gen.writeStringField("@type", clazz.getName());
                 gen.writeFieldName("@data");
                 typeGenerator.serialize(gen, value);
@@ -36,7 +50,14 @@ public abstract class BasicTypesSupport implements TypesSupport {
         CustomDateFormatRegistry.add(typeSupport);
     }
 
+    /**
+     * In case if the object's type is use special internal formatting - restore the object in it initial form.
+     * Otherwise return input back.
+     */
     public static Object restoreObject(TemplateContext context, Object obj) {
+        if (obj == null) {
+            return null;
+        }
         if (! (obj instanceof Map)) {
             return obj;
         }

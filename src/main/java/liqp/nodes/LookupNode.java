@@ -4,6 +4,7 @@ import liqp.TemplateContext;
 import liqp.exceptions.VariableNotExistException;
 import liqp.parser.Inspectable;
 import liqp.parser.LiquidSupport;
+import liqp.spi.BasicTypesSupport;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,8 +47,9 @@ public class LookupNode implements LNode {
             }
         }
 
+        value = BasicTypesSupport.restoreObject(context, value);
         for(Indexable index : indexes) {
-            value = index.get(value, context);
+            value = BasicTypesSupport.restoreObject(context, index.get(value, context));
         }
 
         if(value == null && context.renderSettings.strictVariables) {
@@ -172,7 +174,7 @@ public class LookupNode implements LNode {
                 return null;
             }
 
-            key = expression.render(context);
+            key = BasicTypesSupport.restoreObject(context, expression.render(context));
 
             if(key instanceof Number) {
                 int index = ((Number)key).intValue();
